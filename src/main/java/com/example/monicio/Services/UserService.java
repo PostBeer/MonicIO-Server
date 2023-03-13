@@ -20,9 +20,7 @@ public class UserService implements UserDetailsService {
         userRepo.save(user);
     }
     public boolean existsByUserName(String userName){
-        Optional<User> byUsername = userRepo.findByUsername(userName);
-        if (byUsername.isEmpty()) return false;
-        else return true;
+        return userRepo.findByUsername(userName).isPresent();
     }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

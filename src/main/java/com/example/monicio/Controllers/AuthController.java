@@ -66,7 +66,7 @@ public class AuthController {
         User user = new User(
                 userDto.getUserName(),
                 passwordEncoder.encode(userDto.getPassword()),
-                Set.of(Role.ROLE_USER)
+                Set.of(Role.ROLE_ADMIN)
         );
         userService.save(user);
         return ResponseEntity.ok("User registered successfully!");
