@@ -2,6 +2,7 @@ package com.example.monicio.Controllers;
 
 import com.example.monicio.Config.JWTUtil;
 import com.example.monicio.DTO.UserDTO;
+import com.example.monicio.DTO.userInfo;
 import com.example.monicio.Models.Role;
 import com.example.monicio.Models.User;
 import com.example.monicio.Services.UserService;
@@ -12,12 +13,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,11 +25,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+
+    private UserDetailsService userDetailsService;
 
 
     @PostMapping("/login")
@@ -72,7 +75,19 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully!");
     }
 
+    @GetMapping("/userinfo")
+    public ResponseEntity<?> getUserInfo(Principal user){
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        User userObj=(User) userService.loadUserByUsername(user.getName());
 
+        userInfo userInfo=new userInfo();
+        userInfo.setUserName(userObj.getUsername());
+        userInfo.setRoles(userObj.getAuthorities().toArray());
+
+
+        return ResponseEntity.ok(userInfo);
+
+    }
 
     public record JwtResponse(String jwt, Long id, String username, List<String> authorities) {}
 }
