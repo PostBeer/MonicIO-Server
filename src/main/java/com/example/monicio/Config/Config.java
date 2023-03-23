@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 public class Config{
+
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final AuthenticationEntryPoint authenticationEntryPoint;

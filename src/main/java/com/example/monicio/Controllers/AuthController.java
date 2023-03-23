@@ -28,65 +28,25 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-    private final JWTUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
-
-    private UserDetailsService userDetailsService;
 
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDto) {
-        final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        userDto.getUserName(),
-                        userDto.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        System.out.println(SecurityContextHolder.getContext());
-
-        User user = (User) authentication.getPrincipal();
-        String jwt = jwtUtil.generateToken(user.getUsername());
-
-        List<String> authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(
-                jwt,
-                user.getId(),
-                user.getUsername(),
-                authorities));
+        return userService.loginUser(userDto);
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDto) {
         if (userService.existsByUserName(userDto.getUserName())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Error: Username is already taken!");
+            return ResponseEntity.badRequest().body("Ошибка: такой пользователь уже существует!");
         }
-
-        User user = new User(
-                userDto.getUserName(),
-                passwordEncoder.encode(userDto.getPassword()),
-                Set.of(Role.ROLE_ADMIN)
-        );
-        userService.save(user);
-        return ResponseEntity.ok("User registered successfully!");
+        userService.registerUser(userDto);
+        return ResponseEntity.ok("Пользователь успешно зарегистрирован!");
     }
 
     @GetMapping("/userinfo")
     public ResponseEntity<?> getUserInfo(Principal user){
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        User userObj=(User) userService.loadUserByUsername(user.getName());
-
-        userInfo userInfo=new userInfo();
-        userInfo.setUserName(userObj.getUsername());
-        userInfo.setRoles(userObj.getAuthorities().toArray());
-
-
-        return ResponseEntity.ok(userInfo);
-
+        return userService.collectUserData(user);
     }
 
     public record JwtResponse(String jwt, Long id, String username, List<String> authorities) {}
