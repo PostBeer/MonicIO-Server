@@ -10,4 +10,6 @@ import org.springframework.stereotype.Component;
 public class UserDTO {
     private String userName;
     private String password;
+    private Object Roles;
+    private String email;
 }

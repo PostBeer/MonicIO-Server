@@ -1,6 +1,8 @@
 package com.example.monicio.Config;
 
 
+import com.example.monicio.Config.JWT.JWTAuthFilter;
+import com.example.monicio.Config.JWT.JWTUtil;
 import com.example.monicio.Services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 @RequiredArgsConstructor
-public class Config{
+public class SecurityConfig {
 
     private final UserService userService;
     private final JWTUtil jwtUtil;
@@ -53,7 +55,7 @@ public class Config{
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                .antMatchers("/api/auth/register", "/api/auth/login","/activate/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JWTAuthFilter(userService, jwtUtil), UsernamePasswordAuthenticationFilter.class)
