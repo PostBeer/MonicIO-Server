@@ -1,6 +1,8 @@
 package com.example.monicio.Controllers;
 
 import com.example.monicio.DTO.UserDTO;
+import com.example.monicio.DTO.ValidateDTO.RegisterRequestDTO;
+import com.example.monicio.DTO.ValidateDTO.RegisterResponseDTO;
 import com.example.monicio.Models.ActivationToken;
 import com.example.monicio.Repositories.ActivationTokenRepository;
 import com.example.monicio.Services.UserService;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
@@ -28,12 +31,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDto) {
-        if (userService.existsByUserEmail(userDto.getEmail())) {
-            return ResponseEntity.badRequest().body("Ошибка: такой пользователь уже существует!");
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
+        if (userService.existsByUserEmail(registerRequestDTO.getEmail())) {
+            return ResponseEntity.badRequest().body(new RegisterResponseDTO("Такой пользователь уже существует!"));
         }
-        userService.registerUser(userDto);
-        return ResponseEntity.ok("Пользователь успешно зарегистрирован!");
+        userService.registerUser(registerRequestDTO);
+        return ResponseEntity.ok(new RegisterResponseDTO("Пользователь зарегистрирован!"));
     }
 
     @GetMapping("/userinfo")

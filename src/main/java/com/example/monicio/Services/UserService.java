@@ -4,6 +4,7 @@ package com.example.monicio.Services;
 import com.example.monicio.Config.JWT.JWTUtil;
 import com.example.monicio.Controllers.AuthController;
 import com.example.monicio.DTO.UserDTO;
+import com.example.monicio.DTO.ValidateDTO.RegisterRequestDTO;
 import com.example.monicio.Models.ActivationToken;
 import com.example.monicio.Models.Role;
 import com.example.monicio.Models.User;
@@ -51,11 +52,11 @@ public class UserService implements UserDetailsService {
 
     public void save(User user){
         userRepo.save(user);
-        try {
-            createActivationCode(user.getEmail());
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            createActivationCode(user.getEmail());
+//        } catch (MessagingException e) {
+//            throw new RuntimeException(e);
+//        }
     }
     public boolean existsByUserEmail(String email){
         return userRepo.findUserByEmail(email).isPresent();
@@ -65,11 +66,11 @@ public class UserService implements UserDetailsService {
         return userRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No user with username = " + username));
     }
 
-    public void registerUser(UserDTO userDto){
+    public void registerUser(RegisterRequestDTO registerRequestDTO){
         User user = new User(
-                userDto.getEmail(),
-                userDto.getUserName(),
-                passwordEncoder.encode(userDto.getPassword()),
+                registerRequestDTO.getEmail(),
+                registerRequestDTO.getUserName(),
+                passwordEncoder.encode(registerRequestDTO.getPassword()),
                 Set.of(Role.ROLE_ADMIN),
                 false
         );
