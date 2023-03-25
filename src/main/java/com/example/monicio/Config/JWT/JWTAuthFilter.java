@@ -1,5 +1,6 @@
-package com.example.monicio.Config;
+package com.example.monicio.Config.JWT;
 
+import com.example.monicio.Config.JWT.JWTUtil;
 import com.example.monicio.Services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
