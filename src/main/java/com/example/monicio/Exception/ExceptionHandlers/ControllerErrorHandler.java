@@ -17,7 +17,7 @@ import java.util.List;
 @ControllerAdvice
 public class ControllerErrorHandler extends ResponseEntityExceptionHandler {
 
-    @Override
+
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
         FieldErrorResponse fieldErrorResponse = new FieldErrorResponse();
@@ -29,6 +29,7 @@ public class ControllerErrorHandler extends ResponseEntityExceptionHandler {
             fieldError.setMessage(error.getDefaultMessage());
             fieldErrors.add(fieldError);
         });
+
 
         fieldErrorResponse.setFieldErrors(fieldErrors);
         return new ResponseEntity<>(fieldErrorResponse, status);

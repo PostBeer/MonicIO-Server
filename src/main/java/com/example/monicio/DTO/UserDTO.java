@@ -1,12 +1,14 @@
 package com.example.monicio.DTO;
 
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.stereotype.Component;
 
-@Data
-@Component
 @Getter
+@Setter
+@Component
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
     private String userName;
     private String password;
