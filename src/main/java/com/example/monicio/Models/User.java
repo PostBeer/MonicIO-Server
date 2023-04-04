@@ -1,7 +1,5 @@
 package com.example.monicio.Models;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,14 +11,16 @@ import java.util.Set;
 @Table(name = "user")
 @Entity
 @NoArgsConstructor
-@Data
+@Getter
 @AllArgsConstructor
+@Setter
+@Builder
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_name",unique = true)
+    @Column(name = "user_name")
     private String username;
     @Column(name = "password")
     private String password;

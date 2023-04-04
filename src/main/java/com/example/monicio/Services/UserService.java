@@ -67,14 +67,13 @@ public class UserService implements UserDetailsService {
     }
 
     public void registerUser(RegisterRequestDTO registerRequestDTO){
-        User user = new User(
-                registerRequestDTO.getEmail(),
-                registerRequestDTO.getUserName(),
-                passwordEncoder.encode(registerRequestDTO.getPassword()),
-                Set.of(Role.ROLE_ADMIN),
-                false
+        save(User.builder()
+                .email(registerRequestDTO.getEmail())
+                .username(registerRequestDTO.getUserName())
+                .password(passwordEncoder.encode(registerRequestDTO.getPassword()))
+                .authorities( Set.of(Role.ROLE_ADMIN))
+                .active(false).build()
         );
-        save(user);
     }
 
     public ResponseEntity<?> loginUser(UserDTO userDto){
@@ -93,13 +92,13 @@ public class UserService implements UserDetailsService {
     public ResponseEntity<?> collectUserData(Principal user){
         User userObj=(User) loadUserByUsername(user.getName());
 
-        UserDTO userDto=new UserDTO();
-        userDto.setUserName(userObj.getUsername());
-        userDto.setEmail(userObj.getEmail());
-        userDto.setRoles(userObj.getAuthorities().toArray());
-
-
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(
+                UserDTO.builder()
+                .userName(userObj.getUsername())
+                .email(userObj.getEmail())
+                .Roles(userObj.getAuthorities().toArray())
+                .build()
+        );
     }
 
 
