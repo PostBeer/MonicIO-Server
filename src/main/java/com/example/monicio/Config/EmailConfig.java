@@ -7,9 +7,17 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
+/**
+ * Email configuration for sending mails via gsmtp.
+ */
 @Configuration
 public class EmailConfig {
 
+    /**
+     * Create java mail sender bean.
+     *
+     * @return java mail sender
+     */
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

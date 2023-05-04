@@ -19,18 +19,45 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security configuration
+ * Includes methods for handling authentication,checking public and protected mappings
+ *
+ * @author Nikita Zhiznevskiy
+ * @see com.example.monicio.Config.JWT.RestAuthEntryPoint
+ * @see JWTAuthFilter
+ * @see JWTUtil
+ */
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    /**
+     * The User service.
+     */
     private final UserService userService;
+
+    /**
+     * The Jwt utility.
+     */
     private final JWTUtil jwtUtil;
+
+    /**
+     * The Authentication entry point.
+     */
     private final AuthenticationEntryPoint authenticationEntryPoint;
 
+    /**
+     * Create authentication manager bean.
+     *
+     * @param httpSecurity the http security
+     * @return the authentication manager
+     * @throws Exception the exception
+     */
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception{
+    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(userService)
@@ -38,11 +65,23 @@ public class SecurityConfig {
                 .and().build();
     }
 
+    /**
+     * Create password encoder bean.
+     *
+     * @return the password encoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
 
+    /**
+     * Create filter chain bean for configuration security.
+     *
+     * @param httpSecurity the http security
+     * @return the security filter chain
+     * @throws Exception the exception
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
@@ -55,7 +94,7 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/api/auth/register", "/api/auth/login","/activate/*").permitAll()
+                .antMatchers("/api/auth/register", "/api/auth/login", "/activate/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JWTAuthFilter(userService, jwtUtil), UsernamePasswordAuthenticationFilter.class)

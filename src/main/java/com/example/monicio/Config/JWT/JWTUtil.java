@@ -10,6 +10,11 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
+/**
+ * Component for creation and validation JWT token.
+ *
+ * @see JWTAuthFilter
+ */
 @Component
 public class JWTUtil {
     @Value("${jwt.issuer}")
@@ -22,7 +27,6 @@ public class JWTUtil {
     private int expiresIn;
 
     private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
-
 
 
     private Claims getAllClaimsFromToken(String token) {
@@ -39,6 +43,12 @@ public class JWTUtil {
     }
 
 
+    /**
+     * Gets username from token.
+     *
+     * @param token the token
+     * @return the username from token
+     */
     public String getUsernameFromToken(String token) {
         String username;
         try {
@@ -50,21 +60,39 @@ public class JWTUtil {
         return username;
     }
 
-    public String generateToken(String username){
+    /**
+     * Generate JWT token for user.
+     *
+     * @param username user's username
+     * @return generated token
+     */
+    public String generateToken(String username) {
 
         return Jwts.builder()
-                .setIssuer( appName )
+                .setIssuer(appName)
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(generateExpirationDate())
-                .signWith( SIGNATURE_ALGORITHM, secretKey ) //TODO: Убрать exception в этом месте
+                .signWith(SIGNATURE_ALGORITHM, secretKey)
                 .compact();
     }
 
+    /**
+     * Generate expiration date for token.
+     *
+     * @return expiration date
+     */
     private Date generateExpirationDate() {
         return new Date(new Date().getTime() + expiresIn * 1000);
     }
 
+    /**
+     * Validate JWT token.
+     *
+     * @param token       the token to validate
+     * @param userDetails the user details
+     * @return true if token is valid
+     */
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (
@@ -74,12 +102,24 @@ public class JWTUtil {
         );
     }
 
+    /**
+     * Check is token expired.
+     *
+     * @param token the token
+     * @return true if token expired
+     */
     public boolean isTokenExpired(String token) {
-        Date expireDate=getExpirationDate(token);
+        Date expireDate = getExpirationDate(token);
         return expireDate.before(new Date());
     }
 
 
+    /**
+     * Gets expiration date from JWT token.
+     *
+     * @param token JWT token
+     * @return the expiration date
+     */
     private Date getExpirationDate(String token) {
         Date expireDate;
         try {
@@ -92,6 +132,12 @@ public class JWTUtil {
     }
 
 
+    /**
+     * Gets issued at date from token.
+     *
+     * @param token the token
+     * @return the issued at date from token
+     */
     public Date getIssuedAtDateFromToken(String token) {
         Date issueAt;
         try {
@@ -103,17 +149,29 @@ public class JWTUtil {
         return issueAt;
     }
 
-    public String getToken( HttpServletRequest request ) {
+    /**
+     * Gets token from request.
+     *
+     * @param request the request with authorization header
+     * @return the token from authorization header
+     */
+    public String getToken(HttpServletRequest request) {
 
-        String authHeader = getAuthHeaderFromHeader( request );
-        if ( authHeader != null && authHeader.startsWith("Bearer ")) {
+        String authHeader = getAuthHeaderFromHeader(request);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
 
         return null;
     }
 
-    public String getAuthHeaderFromHeader( HttpServletRequest request ) {
+    /**
+     * Gets authorization header from header.
+     *
+     * @param request the request
+     * @return the authorization header from request headers
+     */
+    public String getAuthHeaderFromHeader(HttpServletRequest request) {
         return request.getHeader("Authorization");
     }
 }

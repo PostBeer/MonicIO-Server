@@ -1,5 +1,10 @@
-package com.example.monicio.DTO.ValidateDTO;
+package com.example.monicio.DTO;
 
+/**
+ * A DTO for the {@link com.example.monicio.Models.User} entity
+ *
+ * @author HukoJlauII, Nikita Zhiznevskiy
+ */
 public class RegisterResponseDTO {
     private String message;
 
