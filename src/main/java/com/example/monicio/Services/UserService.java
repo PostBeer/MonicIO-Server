@@ -30,6 +30,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
+
+/**
+ * Service for interaction with {@link User} entity.
+ *
+ * @author HukoJlauII, Nikita Zhiznevskiy
+ * @see org.springframework.security.core.userdetails.UserDetailsService
+ * @see UserRepository
+ */
 @Service
 @Transactional
 public class UserService implements UserDetailsService {
@@ -48,39 +56,74 @@ public class UserService implements UserDetailsService {
     @Autowired
     private ActivationTokenRepository activationTokenRepository;
 
-    //    public void save(User user){
-//        userRepository.save(user);
-////        try {
-////            createActivationCode(user.getEmail());
-////        } catch (MessagingException e) {
-////            throw new RuntimeException(e);
-////        }
-//    }
+    /**
+     * Save user to database.
+     *
+     * @param user user to save
+     * @return saved user
+     */
     public User save(User user) {
         return userRepository.save(user);
     }
 
+    /**
+     * Check user existence by email.
+     *
+     * @param email the email
+     * @return true if user exists
+     */
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
+    /**
+     * Check user existence by username.
+     *
+     * @param username the username
+     * @return true if user exists
+     */
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
 
+    /**
+     * Find user by username.
+     *
+     * @param username the username
+     * @return the user
+     */
     public User findUserByUsername(String username) {
         return userRepository.findUserByUsername(username).orElse(null);
     }
 
+    /**
+     * Find user by email.
+     *
+     * @param email the email
+     * @return the user
+     */
     public User findUserByEmail(String email) {
         return userRepository.findUserByUsername(email).orElse(null);
     }
 
+    /**
+     * Load user details by username .
+     *
+     * @param username users' username
+     * @return the user details
+     * @throws UsernameNotFoundException the username not found exception
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No user with username = " + username));
     }
 
+    /**
+     * Convert user to info dto.
+     *
+     * @param user the user to convert
+     * @return the user info dto
+     */
     public UserInfoDTO mapUserToInfoDTO(User user) {
         return UserInfoDTO.builder()
                 .username(user.getUsername())
@@ -91,7 +134,16 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public ResponseEntity<?> validateRegister(RegisterRequestDTO registerRequestDTO, BindingResult bindingResult) {
+    /**
+     * Validate register response entity.
+     *
+     * @param registerRequestDTO the register request dto
+     * @param bindingResult      the binding result
+     * @return response with status 200 if user was registered <br>
+     * response with status 409 if register request is not valid
+     * @throws MessagingException the messaging exception
+     */
+    public ResponseEntity<?> validateRegister(RegisterRequestDTO registerRequestDTO, BindingResult bindingResult) throws MessagingException {
         if (!registerRequestDTO.getPassword().equals(registerRequestDTO.getPasswordConfirm())) {
             bindingResult.addError(new FieldError("user", "passwordConfirm", "Пароли не совпадают"));
         }
@@ -105,9 +157,15 @@ public class UserService implements UserDetailsService {
             return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
         }
         registerUser(registerRequestDTO);
+        createActivationCode(registerRequestDTO.getEmail());
         return ResponseEntity.ok(new RegisterResponseDTO("Пользователь зарегистрирован!"));
     }
 
+    /**
+     * Register user.
+     *
+     * @param registerRequestDTO the register request data
+     */
     public void registerUser(RegisterRequestDTO registerRequestDTO) {
         save(User.builder()
                 .username(registerRequestDTO.getUsername())
@@ -120,6 +178,13 @@ public class UserService implements UserDetailsService {
                 .build());
     }
 
+    /**
+     * Login user response entity.
+     *
+     * @param loginRequestDTO the login request data
+     * @return response with status 200 if user was logged in <br>
+     * * response with status 401 if credentials is wrong
+     */
     public ResponseEntity<?> loginUser(LoginRequestDTO loginRequestDTO) {
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
@@ -132,12 +197,23 @@ public class UserService implements UserDetailsService {
         return ResponseEntity.ok(loginResponseDTO);
     }
 
+    /**
+     * Collect user data response entity.
+     *
+     * @param authentication the users's authentication
+     * @return the response entity with information about user
+     */
     public ResponseEntity<?> collectUserData(Authentication authentication) {
         User user = (User) loadUserByUsername(authentication.getName());
         return ResponseEntity.ok(mapUserToInfoDTO(user));
     }
 
 
+    /**
+     * Activate user account.
+     *
+     * @param code the code for activation
+     */
     public void activateUser(String code) {
         User user = activationTokenRepository.findByToken(code).getUser();
         if (user == null) {
@@ -149,8 +225,14 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public void createActivationCode(String userEmail) throws MessagingException {
-        User user = findUserByEmail(userEmail);
+    /**
+     * Create activation code for new user and send email with it.
+     *
+     * @param email user's email
+     * @throws MessagingException the messaging exception
+     */
+    public void createActivationCode(String email) throws MessagingException {
+        User user = findUserByEmail(email);
         String token = UUID.randomUUID().toString();
         ActivationToken myToken = new ActivationToken(token, user, new Date());
         activationTokenRepository.save(myToken);

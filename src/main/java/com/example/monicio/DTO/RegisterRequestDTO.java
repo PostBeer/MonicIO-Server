@@ -8,6 +8,11 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+/**
+ * A DTO for the {@link com.example.monicio.Models.User} entity
+ *
+ * @author HukoJlauII, Nikita Zhiznevskiy
+ */
 @Data
 @Builder
 public class RegisterRequestDTO {

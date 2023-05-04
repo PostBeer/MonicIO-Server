@@ -10,6 +10,11 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
+/**
+ * Component for creation and validation JWT token.
+ *
+ * @see JWTAuthFilter
+ */
 @Component
 public class JWTUtil {
     @Value("${jwt.issuer}")
@@ -38,6 +43,12 @@ public class JWTUtil {
     }
 
 
+    /**
+     * Gets username from token.
+     *
+     * @param token the token
+     * @return the username from token
+     */
     public String getUsernameFromToken(String token) {
         String username;
         try {
@@ -49,6 +60,12 @@ public class JWTUtil {
         return username;
     }
 
+    /**
+     * Generate JWT token for user.
+     *
+     * @param username user's username
+     * @return generated token
+     */
     public String generateToken(String username) {
 
         return Jwts.builder()
@@ -60,10 +77,22 @@ public class JWTUtil {
                 .compact();
     }
 
+    /**
+     * Generate expiration date for token.
+     *
+     * @return expiration date
+     */
     private Date generateExpirationDate() {
         return new Date(new Date().getTime() + expiresIn * 1000);
     }
 
+    /**
+     * Validate JWT token.
+     *
+     * @param token       the token to validate
+     * @param userDetails the user details
+     * @return true if token is valid
+     */
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (
@@ -73,12 +102,24 @@ public class JWTUtil {
         );
     }
 
+    /**
+     * Check is token expired.
+     *
+     * @param token the token
+     * @return true if token expired
+     */
     public boolean isTokenExpired(String token) {
         Date expireDate = getExpirationDate(token);
         return expireDate.before(new Date());
     }
 
 
+    /**
+     * Gets expiration date from JWT token.
+     *
+     * @param token JWT token
+     * @return the expiration date
+     */
     private Date getExpirationDate(String token) {
         Date expireDate;
         try {
@@ -91,6 +132,12 @@ public class JWTUtil {
     }
 
 
+    /**
+     * Gets issued at date from token.
+     *
+     * @param token the token
+     * @return the issued at date from token
+     */
     public Date getIssuedAtDateFromToken(String token) {
         Date issueAt;
         try {
@@ -102,6 +149,12 @@ public class JWTUtil {
         return issueAt;
     }
 
+    /**
+     * Gets token from request.
+     *
+     * @param request the request with authorization header
+     * @return the token from authorization header
+     */
     public String getToken(HttpServletRequest request) {
 
         String authHeader = getAuthHeaderFromHeader(request);
@@ -112,6 +165,12 @@ public class JWTUtil {
         return null;
     }
 
+    /**
+     * Gets authorization header from header.
+     *
+     * @param request the request
+     * @return the authorization header from request headers
+     */
     public String getAuthHeaderFromHeader(HttpServletRequest request) {
         return request.getHeader("Authorization");
     }

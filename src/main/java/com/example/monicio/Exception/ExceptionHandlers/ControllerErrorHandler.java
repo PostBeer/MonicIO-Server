@@ -14,10 +14,24 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Controller error handler.
+ *
+ * @author Nikita Zhiznevskiy
+ */
 @ControllerAdvice
 public class ControllerErrorHandler extends ResponseEntityExceptionHandler {
 
 
+    /**
+     * Handle method argument not valid response entity.
+     *
+     * @param ex      the exception
+     * @param headers the headers
+     * @param status  the status
+     * @param request the request
+     * @return the response entity
+     */
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
         FieldErrorResponse fieldErrorResponse = new FieldErrorResponse();

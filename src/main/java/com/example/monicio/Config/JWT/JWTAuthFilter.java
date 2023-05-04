@@ -16,12 +16,28 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Authentication filter for check JWT.
+ *
+ * @author Nikita Zhiznevskiy
+ * @see JWTUtil
+ * @see com.example.monicio.Config.SecurityConfig
+ */
 @Component
 @RequiredArgsConstructor
 public class JWTAuthFilter extends OncePerRequestFilter {
     private final UserService userService;
     private final JWTUtil jwtUtil;
 
+    /**
+     * Do filter internal.
+     *
+     * @param request     the request
+     * @param response    the response
+     * @param filterChain the filter chain
+     * @throws ServletException the servlet exception
+     * @throws IOException      the io exception
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authToken = jwtUtil.getToken(request);

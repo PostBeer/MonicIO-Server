@@ -9,6 +9,12 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+/**
+ * Email service for sending mails.
+ *
+ * @author Nikita Zhiznevskiy
+ * @see JavaMailSender
+ */
 @Service
 public class EmailService {
 
@@ -16,6 +22,13 @@ public class EmailService {
     private JavaMailSender mailSender;
 
 
+    /**
+     * Send simple message.
+     *
+     * @param To   email receiver
+     * @param text email text for activation
+     * @throws MessagingException the messaging exception
+     */
     @Async
     public void sendSimpleMessage(String To, String text) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
