@@ -1,4 +1,4 @@
-package com.example.monicio.DTO.ValidateDTO;
+package com.example.monicio.DTO;
 
 public class RegisterResponseDTO {
     private String message;

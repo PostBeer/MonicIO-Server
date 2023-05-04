@@ -1,6 +1,5 @@
 package com.example.monicio.Config.JWT;
 
-import com.example.monicio.Config.JWT.JWTUtil;
 import com.example.monicio.Services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,11 +26,11 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authToken = jwtUtil.getToken(request);
 
-        if (!Objects.isNull(authToken)){
-            String userName = jwtUtil.getUsernameFromToken(authToken);
-            if (!Objects.isNull(userName)){
-                UserDetails userDetails = userService.loadUserByUsername(userName);
-                if (jwtUtil.validateToken(authToken, userDetails)){
+        if (!Objects.isNull(authToken)) {
+            String username = jwtUtil.getUsernameFromToken(authToken);
+            if (!Objects.isNull(username)) {
+                UserDetails userDetails = userService.loadUserByUsername(username);
+                if (jwtUtil.validateToken(authToken, userDetails)) {
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetails(request));
 

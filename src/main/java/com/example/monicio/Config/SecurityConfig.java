@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception{
+    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(userService)
@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/api/auth/register", "/api/auth/login","/activate/*").permitAll()
+                .antMatchers("/api/auth/register", "/api/auth/login", "/activate/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JWTAuthFilter(userService, jwtUtil), UsernamePasswordAuthenticationFilter.class)

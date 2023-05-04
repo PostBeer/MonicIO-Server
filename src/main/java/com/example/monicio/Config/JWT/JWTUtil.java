@@ -24,7 +24,6 @@ public class JWTUtil {
     private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
 
-
     private Claims getAllClaimsFromToken(String token) {
         Claims claims;
         try {
@@ -50,14 +49,14 @@ public class JWTUtil {
         return username;
     }
 
-    public String generateToken(String username){
+    public String generateToken(String username) {
 
         return Jwts.builder()
-                .setIssuer( appName )
+                .setIssuer(appName)
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(generateExpirationDate())
-                .signWith( SIGNATURE_ALGORITHM, secretKey ) //TODO: Убрать exception в этом месте
+                .signWith(SIGNATURE_ALGORITHM, secretKey)
                 .compact();
     }
 
@@ -75,7 +74,7 @@ public class JWTUtil {
     }
 
     public boolean isTokenExpired(String token) {
-        Date expireDate=getExpirationDate(token);
+        Date expireDate = getExpirationDate(token);
         return expireDate.before(new Date());
     }
 
@@ -103,17 +102,17 @@ public class JWTUtil {
         return issueAt;
     }
 
-    public String getToken( HttpServletRequest request ) {
+    public String getToken(HttpServletRequest request) {
 
-        String authHeader = getAuthHeaderFromHeader( request );
-        if ( authHeader != null && authHeader.startsWith("Bearer ")) {
+        String authHeader = getAuthHeaderFromHeader(request);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
 
         return null;
     }
 
-    public String getAuthHeaderFromHeader( HttpServletRequest request ) {
+    public String getAuthHeaderFromHeader(HttpServletRequest request) {
         return request.getHeader("Authorization");
     }
 }
