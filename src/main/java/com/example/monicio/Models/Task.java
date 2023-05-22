@@ -3,6 +3,7 @@ package com.example.monicio.Models;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,12 +32,21 @@ public class Task {
      * The Name.
      */
     @Column(name = "name")
+    @NotBlank(message = "Поле не должно быть пустым")
     private String name;
     /**
      * The Description.
      */
     @Column(name = "description")
+    @NotBlank(message = "Поле не должно быть пустым")
     private String description;
+
+    /**
+     * The Creation date.
+     */
+    @Column(name = "creation_date")
+    private LocalDateTime creationDate;
+
     /**
      * The Complete date.
      */

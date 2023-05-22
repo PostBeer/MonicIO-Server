@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @Builder
 public class UserInfoDTO {
-
+    private long id;
     private String username;
 
     private String email;

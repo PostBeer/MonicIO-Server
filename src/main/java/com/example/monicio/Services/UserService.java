@@ -28,6 +28,7 @@ import org.springframework.validation.FieldError;
 import javax.mail.MessagingException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -106,6 +107,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findUserByUsername(email).orElse(null);
     }
 
+    public List<User> findByProjects_Id(Long id) {
+        return userRepository.findByProjects_Id(id);
+    }
+
     /**
      * Load user details by username .
      *
@@ -115,7 +120,7 @@ public class UserService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No user with username = " + username));
+        return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No user with username" + username));
     }
 
     /**
@@ -126,6 +131,7 @@ public class UserService implements UserDetailsService {
      */
     public UserInfoDTO mapUserToInfoDTO(User user) {
         return UserInfoDTO.builder()
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .name(user.getName())
@@ -157,7 +163,7 @@ public class UserService implements UserDetailsService {
             return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
         }
         registerUser(registerRequestDTO);
-        createActivationCode(registerRequestDTO.getEmail());
+//        createActivationCode(registerRequestDTO.getEmail());
         return ResponseEntity.ok(new RegisterResponseDTO("Пользователь зарегистрирован!"));
     }
 
