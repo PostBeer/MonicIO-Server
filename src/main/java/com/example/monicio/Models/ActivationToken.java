@@ -60,7 +60,7 @@ public class ActivationToken {
     public ActivationToken(String token, User user, Date expiryDate) {
         this.token = token;
         this.user = user;
-        this.expiryDate = expiryDate;
+        this.expiryDate = new Date(expiryDate.getTime() + EXPIRATION);
     }
 
     /**
@@ -69,6 +69,6 @@ public class ActivationToken {
      * @return the boolean
      */
     public boolean compareDate() {
-        return (int) ((new Date().getTime() - expiryDate.getTime()) / EXPIRATION) < 2;
+        return new Date().before(expiryDate);
     }
 }

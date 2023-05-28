@@ -156,8 +156,7 @@ public class UserService implements UserDetailsService {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
         }
-        registerUser(registerRequestDTO);
-        createActivationCode(registerRequestDTO.getEmail());
+        createActivationCode(registerUser(registerRequestDTO));
         return ResponseEntity.ok(new RegisterResponseDTO("Пользователь зарегистрирован!"));
     }
 
@@ -166,8 +165,8 @@ public class UserService implements UserDetailsService {
      *
      * @param registerRequestDTO the register request data
      */
-    public void registerUser(RegisterRequestDTO registerRequestDTO) {
-        save(User.builder()
+    public User registerUser(RegisterRequestDTO registerRequestDTO) {
+        return save(User.builder()
                 .username(registerRequestDTO.getUsername())
                 .email(registerRequestDTO.getEmail())
                 .name(registerRequestDTO.getName())
@@ -228,19 +227,17 @@ public class UserService implements UserDetailsService {
     /**
      * Create activation code for new user and send email with it.
      *
-     * @param email user's email
+     * @param user user's entity
      * @throws MessagingException the messaging exception
      */
-    public void createActivationCode(String email) throws MessagingException {
-        User user = findUserByEmail(email);
+    public void createActivationCode(User user) throws MessagingException {
         String token = UUID.randomUUID().toString();
         ActivationToken myToken = new ActivationToken(token, user, new Date());
         activationTokenRepository.save(myToken);
 
         if (!ObjectUtils.isEmpty(user.getEmail())) {
             String message = "Привет, " + user.getUsername() + "!" +
-                    " для активации аккаунта перейдите <a href='http://localhost:8080/activate/" + token + "'>по ссылке для подтверждения почты</a>"
-                    + "а затем продолжите логин <a href='http://localhost:3000/login/'>по ссылке</a>";
+                    " Для активации аккаунта перейдите <a href='http://localhost:3000/activate/" + token + "'>по ссылке для подтверждения почты</a>";
             emailService.sendSimpleMessage(user.getEmail(), message);
         }
     }
