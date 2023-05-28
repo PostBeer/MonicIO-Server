@@ -4,11 +4,13 @@ package com.example.monicio.Services;
 import com.example.monicio.Config.JWT.JWTUtil;
 import com.example.monicio.DTO.*;
 import com.example.monicio.Models.ActivationToken;
+import com.example.monicio.Models.Media;
 import com.example.monicio.Models.PasswordToken;
 import com.example.monicio.Models.User;
 import com.example.monicio.Repositories.ActivationTokenRepository;
 import com.example.monicio.Repositories.PasswordTokenRepository;
 import com.example.monicio.Repositories.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,12 +27,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
+import javax.validation.Validator;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -55,6 +63,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private Validator validator;
 
     @Autowired
     private ActivationTokenRepository activationTokenRepository;
@@ -115,6 +126,16 @@ public class UserService implements UserDetailsService {
     }
 
     /**
+     * Find by projects id list.
+     *
+     * @param id the id
+     * @return the list
+     */
+    public List<User> findByProjects_Id(Long id) {
+        return userRepository.findByProjects_Id(id);
+    }
+
+    /**
      * Load user details by username .
      *
      * @param username users' username
@@ -123,7 +144,7 @@ public class UserService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No user with username = " + username));
+        return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException("No user with username" + username));
     }
 
     /**
@@ -134,10 +155,12 @@ public class UserService implements UserDetailsService {
      */
     public UserInfoDTO mapUserToInfoDTO(User user) {
         return UserInfoDTO.builder()
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .name(user.getName())
                 .surname(user.getSurname())
+                .avatar(user.getAvatar())
                 .roles(user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList())
                 .build();
     }
@@ -166,6 +189,16 @@ public class UserService implements UserDetailsService {
         }
         createActivationCode(registerUser(registerRequestDTO));
         return ResponseEntity.ok(new RegisterResponseDTO("Пользователь зарегистрирован!"));
+    }
+
+    /**
+     * Get user authentication user.
+     *
+     * @param authentication the authentication
+     * @return the user
+     */
+    public User getUserAuthentication(Authentication authentication) {
+        return findUserByUsername(authentication.getName());
     }
 
     /**
@@ -213,6 +246,75 @@ public class UserService implements UserDetailsService {
     public ResponseEntity<?> collectUserData(Authentication authentication) {
         User user = (User) loadUserByUsername(authentication.getName());
         return ResponseEntity.ok(mapUserToInfoDTO(user));
+    }
+
+    /**
+     * Change user password response entity.
+     *
+     * @param changePasswordDto the change password dto
+     * @param bindingResult     the binding result
+     * @param authentication    the authentication
+     * @return the response entity
+     */
+    public ResponseEntity<?> changeUserPassword(ChangePasswordDto changePasswordDto, BindingResult bindingResult, Authentication authentication) {
+        User user = getUserAuthentication(authentication);
+
+        if (!passwordEncoder.matches(changePasswordDto.getPassword(), user.getPassword())) {
+            bindingResult.addError(new FieldError("user", "password", "Старый пароль неверный"));
+            return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
+        }
+        if (!changePasswordDto.getNewPassword().equals(changePasswordDto.getNewPasswordConfirm())) {
+            bindingResult.addError(new FieldError("user", "newPasswordConfirm", "Пароли не совпадают"));
+            return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+        authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return ResponseEntity.ok(mapUserToInfoDTO(user));
+    }
+
+    /**
+     * Change user info response entity.
+     *
+     * @param authentication the authentication
+     * @param multipartFile  the multipart file
+     * @param changeUserInfo the change user info
+     * @return the response entity
+     * @throws IOException the io exception
+     */
+    public ResponseEntity<?> changeUserInfo(Authentication authentication, MultipartFile multipartFile, String changeUserInfo) throws IOException {
+        User user = getUserAuthentication(authentication);
+        ChangeUserDto changeUserDto = new ObjectMapper().readValue(changeUserInfo, ChangeUserDto.class);
+        SpringValidatorAdapter springValidator = new SpringValidatorAdapter(validator);
+        BindingResult bindingResult = new BeanPropertyBindingResult(changeUserDto, "changeUserDtoResult");
+        springValidator.validate(changeUserDto, bindingResult);
+        if (!changeUserDto.getEmail().equals(user.getEmail()) && existsByEmail(changeUserDto.getEmail())) {
+            bindingResult.addError(new FieldError("user", "email", "Пользователь с такой почтой уже существует"));
+        }
+        if (!changeUserDto.getUsername().equals(user.getUsername()) && existsByUsername(changeUserDto.getUsername())) {
+            bindingResult.addError(new FieldError("user", "username", "Пользователь с таким именем уже существует"));
+        }
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
+        }
+        if (!changeUserDto.getUsername().equals(user.getUsername())) {
+            user.setUsername(changeUserDto.getUsername());
+            authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        user.setName(changeUserDto.getName());
+        user.setSurname(changeUserDto.getSurname());
+        user.setEmail(changeUserDto.getEmail());
+        if (multipartFile != null) {
+            Media media = Media.builder()
+                    .originalFileName(multipartFile.getOriginalFilename())
+                    .mediaType(multipartFile.getContentType())
+                    .size(multipartFile.getSize())
+                    .bytes(multipartFile.getBytes()).build();
+            user.setAvatar(media);
+        }
+        save(user);
+        return new ResponseEntity<>(mapUserToInfoDTO(user), HttpStatus.OK);
     }
 
 

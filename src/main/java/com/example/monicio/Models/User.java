@@ -12,7 +12,10 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * User entity.
@@ -103,13 +106,13 @@ public class User implements UserDetails {
     /**
      * The Projects.
      */
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_project",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "project_id", referencedColumnName = "id")}
     )
-    private List<Project> projects = new ArrayList<>();
+    private Set<Project> projects = new HashSet<>();
 
     /**
      * The Authorities.

@@ -1,5 +1,6 @@
 package com.example.monicio.DTO;
 
+import com.example.monicio.Models.Media;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @Data
 @Builder
 public class UserInfoDTO {
-
+    private long id;
     private String username;
 
     private String email;
@@ -21,6 +22,8 @@ public class UserInfoDTO {
     private String name;
 
     private String surname;
+
+    private Media avatar;
 
     private List<String> roles;
 }
