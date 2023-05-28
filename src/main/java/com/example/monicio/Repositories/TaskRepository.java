@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
  * @author HukoJlauII
  */
 @Repository
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RepositoryRestResource(collectionResourceRel = "tasks", path = "tasks")
 public interface TaskRepository extends JpaRepository<Task, Long> {
 

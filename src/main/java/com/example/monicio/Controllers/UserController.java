@@ -17,7 +17,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/profile")
 @Secured({"ADMIN", "USER", "PROJECT_MANAGER"})
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired

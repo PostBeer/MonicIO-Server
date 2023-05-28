@@ -35,7 +35,7 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
         helper.setTo(To);
         helper.setText(text, true);
-        helper.setSubject("Сообщение от команды разработчиков");
+        helper.setSubject("СОП | Среда отслеживания проектов");
         mailSender.send(mimeMessage);
 
     }

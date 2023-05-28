@@ -5,11 +5,14 @@ import com.example.monicio.Config.JWT.JWTUtil;
 import com.example.monicio.DTO.*;
 import com.example.monicio.Models.ActivationToken;
 import com.example.monicio.Models.Media;
+import com.example.monicio.Models.PasswordToken;
 import com.example.monicio.Models.User;
 import com.example.monicio.Repositories.ActivationTokenRepository;
+import com.example.monicio.Repositories.PasswordTokenRepository;
 import com.example.monicio.Repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,6 +70,11 @@ public class UserService implements UserDetailsService {
     @Autowired
     private ActivationTokenRepository activationTokenRepository;
 
+    @Autowired
+    private PasswordTokenRepository passwordTokenRepository;
+
+    @Value("${CLIENT_URL}")
+    private String CLIENT_URL;
     /**
      * Save user to database.
      *
@@ -179,8 +187,7 @@ public class UserService implements UserDetailsService {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
         }
-        registerUser(registerRequestDTO);
-//        createActivationCode(registerRequestDTO.getEmail());
+        createActivationCode(registerUser(registerRequestDTO));
         return ResponseEntity.ok(new RegisterResponseDTO("Пользователь зарегистрирован!"));
     }
 
@@ -199,8 +206,8 @@ public class UserService implements UserDetailsService {
      *
      * @param registerRequestDTO the register request data
      */
-    public void registerUser(RegisterRequestDTO registerRequestDTO) {
-        save(User.builder()
+    public User registerUser(RegisterRequestDTO registerRequestDTO) {
+        return save(User.builder()
                 .username(registerRequestDTO.getUsername())
                 .email(registerRequestDTO.getEmail())
                 .name(registerRequestDTO.getName())
@@ -330,20 +337,69 @@ public class UserService implements UserDetailsService {
     /**
      * Create activation code for new user and send email with it.
      *
-     * @param email user's email
+     * @param user user's entity
      * @throws MessagingException the messaging exception
      */
-    public void createActivationCode(String email) throws MessagingException {
-        User user = findUserByEmail(email);
+    public void createActivationCode(User user) throws MessagingException {
         String token = UUID.randomUUID().toString();
         ActivationToken myToken = new ActivationToken(token, user, new Date());
         activationTokenRepository.save(myToken);
 
         if (!ObjectUtils.isEmpty(user.getEmail())) {
             String message = "Привет, " + user.getUsername() + "!" +
-                    " для активации аккаунта перейдите <a href='http://localhost:8080/activate/" + token + "'>по ссылке для подтверждения почты</a>"
-                    + "а затем продолжите логин <a href='http://localhost:3000/login/'>по ссылке</a>";
+                    " Для активации аккаунта перейдите <a href='" + CLIENT_URL + "'/activate/" + token + "'>по ссылке для подтверждения почты</a>";
             emailService.sendSimpleMessage(user.getEmail(), message);
         }
+    }
+    /**
+     * Create activation code for new user and send email with it.
+     *
+     * @param passwordTokenDTO passwordDTO validated
+     * @param token PasswordToken by user
+     */
+    public void changePasswordByToken(PasswordTokenDTO passwordTokenDTO, PasswordToken token){
+        User user = token.getUser();
+        user.setPassword(passwordEncoder.encode(passwordTokenDTO.getPassword()));
+        passwordTokenRepository.delete(token);
+        userRepository.save(user);
+    }
+
+
+
+    /**
+     * Create password code for user has forgotten his password
+     *
+     * @param passwordForgetDTO Email DTO
+     * @throws MessagingException the messaging exception
+     */
+    public boolean createPasswordToken(PasswordForgetDTO passwordForgetDTO) throws MessagingException {
+        User user = userRepository.findUserByEmail(passwordForgetDTO.getEmail()).orElse(null);
+        if (user == null){
+            return false;
+        }
+        String token = UUID.randomUUID().toString();
+        PasswordToken passwordToken = new PasswordToken(token, user, new Date());
+        passwordTokenRepository.save(passwordToken);
+
+        if (!ObjectUtils.isEmpty(user.getEmail())) {
+            String message = "Привет, " + user.getUsername() + "!" +
+                    " Для восстановления аккаунта перейдите <a href='" + CLIENT_URL + "/forget/" + token + "'>по ссылке для замены пароля</a>";
+            emailService.sendSimpleMessage(user.getEmail(), message);
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Sending callback to developer team
+     *
+     * @param callbackRequestDTO Information about callback
+     * @throws MessagingException the messaging exception
+     */
+    public void sendCallback(CallbackRequestDTO callbackRequestDTO) throws MessagingException {
+        String message = "Сообщение в студию от " + callbackRequestDTO.getName() +
+                "<br> Email для ответа: " + callbackRequestDTO.getEmail() +
+                "<br> Тема сообщения: " + callbackRequestDTO.getTheme() +
+                "<br> Сообщение: " + callbackRequestDTO.getMessage();
+        emailService.sendSimpleMessage("postbeer322@gmail.com", message);
     }
 }

@@ -10,18 +10,18 @@ import java.util.Date;
 /**
  * Activation token entity.
  *
- * @author Nikita Zhiznevskiy
+ * @author Maxim Milko
  */
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class ActivationToken {
+public class PasswordToken {
 
     /**
-     * The constant EXPIRATION.
+     * The constant EXPIRATION. Default 2 hours
      */
-    private static final int EXPIRATION = 24 * 60 * 60 * 1000;
+    private static final int EXPIRATION = 2 * 60 * 60 * 1000;
 
     /**
      * The Id.
@@ -30,12 +30,10 @@ public class ActivationToken {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-
     /**
      * The Token.
      */
     private String token;
-
 
     /**
      * The User.
@@ -57,7 +55,7 @@ public class ActivationToken {
      * @param user       the user
      * @param expiryDate the expiry date
      */
-    public ActivationToken(String token, User user, Date expiryDate) {
+    public PasswordToken(String token, User user, Date expiryDate) {
         this.token = token;
         this.user = user;
         this.expiryDate = new Date(expiryDate.getTime() + EXPIRATION);
