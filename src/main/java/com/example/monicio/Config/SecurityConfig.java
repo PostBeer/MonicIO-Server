@@ -94,7 +94,8 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/api/auth/register", "/api/auth/login", "/activate/*").permitAll()
+                .antMatchers("/api/auth/register", "/api/auth/login", "/activate/*", "/api/media/*").permitAll()
+
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JWTAuthFilter(userService, jwtUtil), UsernamePasswordAuthenticationFilter.class)

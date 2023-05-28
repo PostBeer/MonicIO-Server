@@ -1,5 +1,6 @@
 package com.example.monicio.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,11 +32,23 @@ public class Project {
 
     @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @RestResource(exported = false)
+    @JsonIgnoreProperties({"projects", "avatar"})
     private Set<User> users = new HashSet<>();
+
+    @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
+    @JoinTable(
+            name = "projects_requests",
+            joinColumns = {@JoinColumn(name = "project_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
+    )
+    @RestResource(exported = false)
+    @JsonIgnoreProperties({"projects", "avatar"})
+    private Set<User> requests = new HashSet<>();
 
     @JoinColumn(name = "creator_id", referencedColumnName = "id")
     @OneToOne(targetEntity = User.class)
     @RestResource(exported = false)
+    @JsonIgnoreProperties({"projects", "avatar"})
     private User creator;
 
     /**
