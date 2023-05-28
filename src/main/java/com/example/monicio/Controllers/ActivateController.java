@@ -4,10 +4,12 @@ import com.example.monicio.Models.ActivationToken;
 import com.example.monicio.Repositories.ActivationTokenRepository;
 import com.example.monicio.Services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
  */
 @Controller
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class ActivateController {
 
     /**
@@ -32,10 +35,18 @@ public class ActivateController {
     private final UserService userService;
 
     /**
+     * Client endpoint
+     */
+    @Value("${CLIENT_URL}")
+    private String CLIENT_URL;
+
+
+
+    /**
      * Activate user after click on activation link.
      *
      * @param code the activation code
-     * @return response with status 302 if code is valid <br>
+     * @return response with status 200 if code is valid <br>
      * response with status 409 if code is not valid
      */
     @GetMapping("/activate/{code}")
@@ -44,8 +55,8 @@ public class ActivateController {
         if (activationToken != null && activationToken.compareDate()) {
             userService.activateUser(code);
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "localhost:3000/login");
-            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+            headers.add("Location", CLIENT_URL + "/login");
+            return new ResponseEntity<>(headers, HttpStatus.OK);
         } else
             return new ResponseEntity<>("Токен не действителен", HttpStatus.CONFLICT);
     }
