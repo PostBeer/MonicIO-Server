@@ -21,11 +21,14 @@ public class TasksLog {
     @Column(name = "project_id")
     private Long projectId;
 
+    @Column(name = "project_name")
+    private String projectName;
+
     @Column(name = "task_id")
     private Long taskId;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "task_name")
+    private String taskName;
 
     @Column(name = "status")
     private String status;

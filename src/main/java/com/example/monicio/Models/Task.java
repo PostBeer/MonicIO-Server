@@ -1,5 +1,6 @@
 package com.example.monicio.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -58,6 +59,7 @@ public class Task {
      */
     @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "implementer_id", referencedColumnName = "id")
+    @JsonIgnore
     private User implementer;
     /**
      * The Status.

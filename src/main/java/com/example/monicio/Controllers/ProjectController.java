@@ -80,8 +80,9 @@ public class ProjectController {
 
         tasksLogRepository.save(TasksLog.builder()
                 .projectId(project.getId())
+                .projectName(project.getTitle())
                 .taskId(newTask.getId())
-                .name(newTask.getName())
+                .taskName(newTask.getName())
                 .status(newTask.getStatus())
                 .changedOn(newTask.getCreationDate()).build());
 
@@ -149,8 +150,13 @@ public class ProjectController {
         return new ResponseEntity<>(projectService.leaveProject(authentication, id), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/log")
-    public ResponseEntity<?> tasksLog(@PathVariable Long id) {
-        return new ResponseEntity<>(projectService.tasksLog(id), HttpStatus.OK);
+    @GetMapping("/status")
+    public ResponseEntity<?> getProjectsStatuses(Authentication authentication) {
+        return new ResponseEntity<>(projectService.getProjectsStatuses(authentication), HttpStatus.OK);
+    }
+
+    @GetMapping("/status/tasks")
+    public ResponseEntity<?> getTasksStatuses(Authentication authentication) {
+        return new ResponseEntity<>(projectService.getTasksStatuses(authentication), HttpStatus.OK);
     }
 }
