@@ -1,9 +1,13 @@
 package com.example.monicio.Services;
 
 import com.example.monicio.Models.Project;
+import com.example.monicio.Models.TasksLog;
 import com.example.monicio.Models.User;
 import com.example.monicio.Repositories.ProjectRepository;
+import com.example.monicio.Repositories.TasksLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,9 @@ public class ProjectService {
      */
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TasksLogRepository tasksLogRepository;
 
     /**
      * Find project by id project.
@@ -110,5 +117,9 @@ public class ProjectService {
         userService.save(user);
         return save(project);
 
+    }
+
+    public Page<TasksLog> tasksLog(Long id) {
+        return tasksLogRepository.findAllByProjectIdOrderByChangedOnDesc(id, PageRequest.of(0, 6));
     }
 }

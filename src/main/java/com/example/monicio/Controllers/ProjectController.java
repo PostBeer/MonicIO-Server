@@ -3,7 +3,9 @@ package com.example.monicio.Controllers;
 import com.example.monicio.DTO.TaskCreateDto;
 import com.example.monicio.Models.Project;
 import com.example.monicio.Models.Task;
+import com.example.monicio.Models.TasksLog;
 import com.example.monicio.Models.User;
+import com.example.monicio.Repositories.TasksLogRepository;
 import com.example.monicio.Services.ProjectService;
 import com.example.monicio.Services.TaskService;
 import com.example.monicio.Services.UserService;
@@ -48,6 +50,9 @@ public class ProjectController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TasksLogRepository tasksLogRepository;
+
 
     /**
      * Create new task response entity.
@@ -72,6 +77,14 @@ public class ProjectController {
         Project project = projectService.findProjectById(id);
         project.getTasks().add(newTask);
         projectService.save(project);
+
+        tasksLogRepository.save(TasksLog.builder()
+                .projectId(project.getId())
+                .taskId(newTask.getId())
+                .name(newTask.getName())
+                .status(newTask.getStatus())
+                .changedOn(newTask.getCreationDate()).build());
+
         return new ResponseEntity<>(newTask, HttpStatus.CREATED);
     }
 
@@ -134,5 +147,10 @@ public class ProjectController {
     @PostMapping("/{id}/leave")
     public ResponseEntity<?> leaveProject(Authentication authentication, @PathVariable Long id) {
         return new ResponseEntity<>(projectService.leaveProject(authentication, id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/log")
+    public ResponseEntity<?> tasksLog(@PathVariable Long id) {
+        return new ResponseEntity<>(projectService.tasksLog(id), HttpStatus.OK);
     }
 }
