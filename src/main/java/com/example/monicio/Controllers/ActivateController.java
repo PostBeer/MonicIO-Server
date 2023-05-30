@@ -41,7 +41,6 @@ public class ActivateController {
     private String CLIENT_URL;
 
 
-
     /**
      * Activate user after click on activation link.
      *

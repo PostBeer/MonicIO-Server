@@ -42,14 +42,15 @@ public class PasswordController {
     /**
      * Checking for usable password token.
      * METHOD: GET
+     *
      * @param token the password token
      * @return response with status 200 if code is valid <br>
      * response with status 409 if code is not valid
      */
     @GetMapping("/forget/{token}")
-    public ResponseEntity<?> checkToken(@PathVariable String token){
+    public ResponseEntity<?> checkToken(@PathVariable String token) {
         PasswordToken passwordToken = passwordTokenRepository.findByToken(token);
-        if (passwordToken != null && passwordToken.compareDate()){
+        if (passwordToken != null && passwordToken.compareDate()) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Токен не действителен", HttpStatus.CONFLICT);
@@ -59,12 +60,13 @@ public class PasswordController {
     /**
      * Change password by User and delete password token.
      * METHOD: POST
+     *
      * @param token the password token
      * @return response with status 200 if code is valid <br>
      * response with status 409 if code is not valid
      */
     @PostMapping("/forget/{token}")
-    public ResponseEntity<?> acceptTokenAndChangePassword(@Valid @RequestBody PasswordTokenDTO passwordTokenDTO, BindingResult bindingResult, @PathVariable String token){
+    public ResponseEntity<?> acceptTokenAndChangePassword(@Valid @RequestBody PasswordTokenDTO passwordTokenDTO, BindingResult bindingResult, @PathVariable String token) {
         if (!passwordTokenDTO.getPassword().equals(passwordTokenDTO.getPasswordConfirm())) {
             bindingResult.addError(new FieldError("user", "passwordConfirm", "Пароли не совпадают"));
         }
@@ -72,7 +74,7 @@ public class PasswordController {
             return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
         }
         PasswordToken passwordToken = passwordTokenRepository.findByToken(token);
-        if (passwordToken != null && passwordToken.compareDate()){
+        if (passwordToken != null && passwordToken.compareDate()) {
             userService.changePasswordByToken(passwordTokenDTO, passwordToken);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -83,6 +85,7 @@ public class PasswordController {
     /**
      * Create password token for user
      * METHOD: POST
+     *
      * @param passwordForgetDTO account email
      * @return response with status 200 if email is valid <br>
      * response with status 409 if email is not valid
@@ -93,7 +96,7 @@ public class PasswordController {
             return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
         }
         boolean success = userService.createPasswordToken(passwordForgetDTO);
-        if (success){
+        if (success) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             bindingResult.addError(new FieldError("user", "email", "Пользователя с такой почтой не существует"));

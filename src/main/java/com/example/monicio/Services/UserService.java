@@ -75,6 +75,7 @@ public class UserService implements UserDetailsService {
 
     @Value("${CLIENT_URL}")
     private String CLIENT_URL;
+
     /**
      * Save user to database.
      *
@@ -347,23 +348,23 @@ public class UserService implements UserDetailsService {
 
         if (!ObjectUtils.isEmpty(user.getEmail())) {
             String message = "Привет, " + user.getUsername() + "!" +
-                    " Для активации аккаунта перейдите <a href='" + CLIENT_URL + "'/activate/" + token + "'>по ссылке для подтверждения почты</a>";
+                    " Для активации аккаунта перейдите <a href='" + CLIENT_URL + "/activate/" + token + "'>по ссылке для подтверждения почты</a>";
             emailService.sendSimpleMessage(user.getEmail(), message);
         }
     }
+
     /**
      * Create activation code for new user and send email with it.
      *
      * @param passwordTokenDTO passwordDTO validated
-     * @param token PasswordToken by user
+     * @param token            PasswordToken by user
      */
-    public void changePasswordByToken(PasswordTokenDTO passwordTokenDTO, PasswordToken token){
+    public void changePasswordByToken(PasswordTokenDTO passwordTokenDTO, PasswordToken token) {
         User user = token.getUser();
         user.setPassword(passwordEncoder.encode(passwordTokenDTO.getPassword()));
         passwordTokenRepository.delete(token);
         userRepository.save(user);
     }
-
 
 
     /**
@@ -374,7 +375,7 @@ public class UserService implements UserDetailsService {
      */
     public boolean createPasswordToken(PasswordForgetDTO passwordForgetDTO) throws MessagingException {
         User user = userRepository.findUserByEmail(passwordForgetDTO.getEmail()).orElse(null);
-        if (user == null){
+        if (user == null) {
             return false;
         }
         String token = UUID.randomUUID().toString();
@@ -389,6 +390,7 @@ public class UserService implements UserDetailsService {
         }
         return false;
     }
+
     /**
      * Sending callback to developer team
      *

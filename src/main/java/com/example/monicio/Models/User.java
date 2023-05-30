@@ -29,6 +29,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class User implements UserDetails {
     /**
      * The Id.

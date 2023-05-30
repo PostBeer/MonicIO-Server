@@ -1,9 +1,8 @@
 package com.example.monicio.Models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,10 +14,12 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "message")
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class Message {
     /**
      * The Id.
@@ -31,8 +32,8 @@ public class Message {
     /**
      * The Text.
      */
-    @Column(name = "text")
-    private String text;
+    @Column(name = "content")
+    private String content;
 
     /**
      * The Send at.
@@ -43,6 +44,7 @@ public class Message {
     /**
      * The Sender.
      */
+    @RestResource(exported = false)
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
     private User sender;
@@ -50,7 +52,7 @@ public class Message {
     /**
      * The Project.
      */
-    @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Project.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", referencedColumnName = "id")
     private Project project;
 }

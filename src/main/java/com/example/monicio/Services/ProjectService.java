@@ -35,6 +35,9 @@ public class ProjectService {
     @Autowired
     private UserService userService;
 
+    /**
+     * The Task repository.
+     */
     @Autowired
     private TaskRepository taskRepository;
 
@@ -106,7 +109,7 @@ public class ProjectService {
     }
 
     /**
-     * Leave project project.
+     * Leave project method.
      *
      * @param authentication the authentication
      * @param id             the id
@@ -121,6 +124,12 @@ public class ProjectService {
         return save(project);
     }
 
+    /**
+     * Gets projects statuses.
+     *
+     * @param authentication the authentication
+     * @return the projects statuses
+     */
     public Page<Project> getProjectsStatuses(Authentication authentication) {
         User user = userService.getUserAuthentication(authentication);
         List<Long> ids = new ArrayList<>();
@@ -128,6 +137,12 @@ public class ProjectService {
         return projectRepository.findByIdIn(ids, PageRequest.of(0, 3));
     }
 
+    /**
+     * Gets tasks statuses.
+     *
+     * @param authentication the authentication
+     * @return the tasks statuses
+     */
     public Page<Task> getTasksStatuses(Authentication authentication) {
         User user = userService.getUserAuthentication(authentication);
         return taskRepository.findAllByImplementerOrderByCompleteDate(user, PageRequest.of(0, 5));

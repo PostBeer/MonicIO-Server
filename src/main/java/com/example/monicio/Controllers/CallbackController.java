@@ -38,11 +38,11 @@ public class CallbackController {
      * response with status 409 if information is not valid
      */
     @PostMapping("/callback")
-    public ResponseEntity<?> sendCallBack(@Valid @RequestBody CallbackRequestDTO callbackRequestDTO, BindingResult bindingResult){
+    public ResponseEntity<?> sendCallBack(@Valid @RequestBody CallbackRequestDTO callbackRequestDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(bindingResult.getFieldErrors(), HttpStatus.CONFLICT);
         }
-        try{
+        try {
             userService.sendCallback(callbackRequestDTO);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (MessagingException e) {

@@ -1,6 +1,5 @@
 package com.example.monicio.Repositories;
 
-import com.example.monicio.Models.ActivationToken;
 import com.example.monicio.Models.PasswordToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
