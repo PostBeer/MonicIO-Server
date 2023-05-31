@@ -2,7 +2,8 @@ package com.example.monicio.Repositories;
 
 import com.example.monicio.Models.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -15,7 +16,6 @@ import java.util.List;
  */
 @Repository
 @CrossOrigin(origins = "*")
-@RepositoryRestResource(collectionResourceRel = "messages", path = "messages")
 public interface MessageRepository extends JpaRepository<Message, Long> {
     /**
      * Find messages by project id.
@@ -23,5 +23,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
      * @param project_id the project id
      * @return the list of messages
      */
-    List<Message> findMessagesByProject_Id(Long project_id);
+    @Query("select m from Message m where m.project.id = :project")
+    List<Message> findMessagesByProject_Id(@Param("project") Long project_id);
 }

@@ -13,17 +13,38 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Log service.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class LogService {
+    /**
+     * The Tasks log repository.
+     */
     private final TasksLogRepository tasksLogRepository;
+    /**
+     * The User service.
+     */
     private final UserService userService;
 
+    /**
+     * Tasks log for project page.
+     *
+     * @param id the id
+     * @return the page
+     */
     public Page<TasksLog> tasksLogForProject(Long id) {
         return tasksLogRepository.findAllByProjectIdOrderByChangedOnDesc(id, PageRequest.of(0, 6));
     }
 
+    /**
+     * Tasks log for user page.
+     *
+     * @param authentication the authentication
+     * @return the page
+     */
     public Page<TasksLog> tasksLogForUser(Authentication authentication) {
         User user = userService.getUserAuthentication(authentication);
         List<Long> ids = new ArrayList<>();
