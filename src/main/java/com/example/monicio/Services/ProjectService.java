@@ -1,5 +1,6 @@
 package com.example.monicio.Services;
 
+import com.example.monicio.DTO.ProjectUpdateDTO;
 import com.example.monicio.Models.Project;
 import com.example.monicio.Models.Task;
 import com.example.monicio.Models.User;
@@ -49,6 +50,10 @@ public class ProjectService {
      */
     public Project findProjectById(Long id) {
         return projectRepository.findById(id).orElse(null);
+    }
+
+    public Project findByTasks_Id(Long id) {
+        return projectRepository.findByTasks_Id(id);
     }
 
     /**
@@ -121,6 +126,32 @@ public class ProjectService {
         project.getUsers().remove(user);
         user.getProjects().remove(project);
         userService.save(user);
+        return save(project);
+    }
+
+    /**
+     * Update project.
+     *
+     * @param projectUpdateDTO the project update dto
+     * @param id               the id
+     * @return the project
+     */
+    public Project updateProject(ProjectUpdateDTO projectUpdateDTO, Long id) {
+        Project project = findProjectById(id);
+        project.setTitle(projectUpdateDTO.getTitle());
+        project.setDescription(projectUpdateDTO.getDescription());
+        return save(project);
+    }
+
+    /**
+     * Complete project.
+     *
+     * @param id the id
+     * @return the project
+     */
+    public Project completeProject(Long id) {
+        Project project = findProjectById(id);
+        project.setStatus("Завершён");
         return save(project);
     }
 

@@ -1,7 +1,8 @@
 package com.example.monicio.Models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -59,7 +60,8 @@ public class Task {
      */
     @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "implementer_id", referencedColumnName = "id")
-    @JsonIgnore
+    @JsonIgnoreProperties({"projects", "avatar"})
+    @RestResource(exported = false)
     private User implementer;
     /**
      * The Status.

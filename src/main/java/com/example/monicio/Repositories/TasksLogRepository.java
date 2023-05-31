@@ -34,4 +34,8 @@ public interface TasksLogRepository extends JpaRepository<TasksLog, Long> {
      * @return the page
      */
     Page<TasksLog> findAllByProjectIdIsInOrderByChangedOnDesc(List<Long> ids, Pageable pageable);
+
+    List<TasksLog> findByTaskId(Long taskId);
+
+
 }
