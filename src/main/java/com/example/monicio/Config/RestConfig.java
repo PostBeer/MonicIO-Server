@@ -1,6 +1,7 @@
 package com.example.monicio.Config;
 
 import com.example.monicio.Handlers.ProjectHandler;
+import com.example.monicio.Handlers.TaskHandler;
 import com.example.monicio.Models.Media;
 import com.example.monicio.Models.Project;
 import com.example.monicio.Models.Task;
@@ -22,6 +23,11 @@ public class RestConfig implements RepositoryRestConfigurer {
     @Bean
     ProjectHandler projectHandler() {
         return new ProjectHandler();
+    }
+
+    @Bean
+    TaskHandler taskHandler() {
+        return new TaskHandler();
     }
 
     @Override

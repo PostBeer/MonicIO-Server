@@ -21,4 +21,8 @@ import java.util.List;
 @RepositoryRestResource(collectionResourceRel = "projects", path = "projects")
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     Page<Project> findByIdIn(List<Long> ids, Pageable pageable);
+
+    Project findByTasks_Id(Long id);
+
+
 }
